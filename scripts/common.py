@@ -1,4 +1,3 @@
-
 import os
 import re
 import codecs
@@ -58,7 +57,7 @@ def is_injectable_test_class(file_content, filepath, titular_class_name):
         if node.name == titular_class_name:
             titular_class_def = node
             break
-    
+
     assert titular_class_def is not None, f'Could not find titular class {titular_class_name} in {filepath}'
     if 'abstract' in titular_class_def.modifiers:
         return False
@@ -68,7 +67,7 @@ def is_injectable_test_class(file_content, filepath, titular_class_name):
             anno = annotation.element
             if hasattr(anno, 'type') and anno.type.name == 'Parameterized':
                 return False
-    
+
     return True
 
 def get_best_test_class_for_injection(repo_path, test_dir, gen_test):
@@ -81,7 +80,7 @@ def get_best_test_class_for_injection(repo_path, test_dir, gen_test):
             filepath = path.join(root, name)
             with codecs.open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
                 file_cont = f.read()
-                if 'abstract' in file_cont or '@RunWith(Parameterized.class)' in file_cont: 
+                if 'abstract' in file_cont or '@RunWith(Parameterized.class)' in file_cont:
                     if not is_injectable_test_class(file_cont, filepath, name.removesuffix('.java')):
                         continue
                 if '@Ignore' in file_cont:
@@ -202,8 +201,13 @@ def inject_with_imports(best_classpath, testf_lines, gen_test, unhandled_imports
         'void ' + org_test_name,
         'void ' + new_test_name)
     # add @Test decorator if necessary
-    if '@Test' in ''.join(testf_lines):
-        gen_test = '@Test\n' + gen_test.strip()
+#    if '@Test' in ''.join(testf_lines):
+#        gen_test = '@Test\n' + gen_test.strip()
+    if '@Test' not in ''.join(testf_lines):
+        # Remove the lines that start with @Test
+        gen_test_lines = gen_test.split('\n')
+        testf_lines = [line for line in gen_test_lines if not line.startswith('@Test')]
+        gen_test = '\n'.join(testf_lines)
 
     # find last line of titular class
     tree = javalang.parse.parse(''.join(new_test_lines))
@@ -214,7 +218,7 @@ def inject_with_imports(best_classpath, testf_lines, gen_test, unhandled_imports
         start_loc = len(new_test_lines)-1
     else:
         start_loc = tree.types[titular_class_idx+1]._position.line-1
-    
+
     final_paren_loc = 0
     for idx in range(start_loc, 0, -1):
         if '}' in new_test_lines[idx]:
@@ -227,7 +231,7 @@ def inject_with_imports(best_classpath, testf_lines, gen_test, unhandled_imports
         new_test_lines[final_paren_loc:]
     )
     new_file_content = ''.join(new_test_lines)
-    
+
     return new_file_content, gen_test
 
 
@@ -448,7 +452,7 @@ def process_result(result_json_path, gen_test_path):
     with open(result_json_path, 'r') as f:
         result = json.load(f)
 
-    
+
     with open(os.path.join(os.path.dirname(__file__), '../data/Defects4J/invalid_bug_reports.txt')) as f:
         invalid_bugs = [e.strip().replace('-', '_') for e in f.readlines()]
 
