@@ -88,6 +88,7 @@ def extract_code(code_snippet):
     except Exception as e:
         # Otherwise, we return the code snippet as is because it is going directly in the test class
         return code_snippet
+    return code_snippet
 
 
 def main():
