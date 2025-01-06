@@ -34,9 +34,9 @@ while IFS=, read -r proj bug; do
     fi
 
     # If proj != google_gson, skip this bug
-    if [ "$proj" == "google_gson" ]; then
-        continue
-    fi
+    # if [ "$proj" == "google_gson" ]; then
+    #     continue
+    # fi
 
     # Append the bug to the project's list
     project_bugs["$proj"]+="$bug "

@@ -424,7 +424,8 @@ if __name__ == '__main__':
 
     GEN_TEST_DIR = args.gen_test_dir + args.exp_name
 
-    os.makedirs(f'/root/results/{args.exp_name}', exist_ok=True)
+    os.makedirs(f'/root/results/ghrb', exist_ok=True)
+    os.makedirs(f'/root/results/ghrb/{args.exp_name}', exist_ok=True)
 
     if args.all:
         assert args.project is not None # target project should be set
@@ -495,7 +496,7 @@ if __name__ == '__main__':
         for test_path, res in zip(test_files, results):
             res_for_bug[os.path.basename(test_path)] = res
 
-        with open(f'{LIBRO_PATH}/results/{args.exp_name}/{args.project}_{args.bug_id}.json', 'w') as f:
+        with open(f'{LIBRO_PATH}/results/ghrb/{args.exp_name}/{args.project}_{args.bug_id}.json', 'w') as f:
             json.dump(res_for_bug, f, indent=4)
 
     else:
