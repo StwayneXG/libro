@@ -474,11 +474,17 @@ if __name__ == '__main__':
     elif args.test_no is None:
         test_files = glob.glob(os.path.join(GEN_TEST_DIR, f'{args.project}_{args.bug_id}_*.txt'))
         example_tests = []
-        res_for_bug = {}
+        # res_for_bug = {}
 
         for gen_test_file in test_files:
             with open(gen_test_file) as f:
                 example_tests.append(f.read())
+
+        if os.path.exists(f'/root/results/gbrb/{args.exp_name}/{args.project}_{args.bug_id}.json'):
+            with open(f'/root/results/{args.exp_name}/{args.project}_{args.bug_id}.json') as f:
+                res_for_bug = json.load(f)
+
+        test_files = [x for x in test_files if os.path.basename(x) not in res_for_bug.keys()]
 
         repo_path = config[args.project]['repo_path']
         src_dir = config[args.project]['src_dir']
