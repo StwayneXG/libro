@@ -5,7 +5,7 @@ from collections import defaultdict
 from tqdm import tqdm
 
 import os
-import re 
+import re
 import glob
 import shutil
 import glob
@@ -15,6 +15,13 @@ from ghrb_util import config, license_sslcontext_kickstart, fix_build_env, pit, 
 
 import subprocess as sp
 import argparse
+
+
+import pandas as pd
+from masker import mask_method
+
+# MASK_INFO_DIR = '/root/data/Defects4J/mask_data/meaningfulmask_0'
+MASK_INFO_DIR = None
 
 LIBRO_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -261,7 +268,13 @@ def get_test_execution_result(repo_path, test_name, file_content):
     }
 
 
-def individual_run(repo_path, src_dir, test_prefix, example_test, project_id, injection):
+def individual_run(repo_path, src_dir, test_prefix, example_test, project_id, bug_no, injection):
+
+    if MASK_INFO_DIR is not None:
+        mask_info = pd.read_csv(path.join(MASK_INFO_DIR, f'{project_id}-{bug_no}.csv'))
+        for i, row in mask_info.iterrows():
+            mask_method(repo_path, row['Old Method Name'], row['New Method Name'])
+
     # example extraction of needed_classes
     classpaths, assertion_packages, needed_class_stubs = needed_imports_and_asserts(
         repo_path, src_dir, example_test, project_id)
@@ -279,7 +292,7 @@ def individual_run(repo_path, src_dir, test_prefix, example_test, project_id, in
     return get_test_execution_result(repo_path, test_name, file_content)
 
 
-def twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit=None, fixed_commit=None, project_id=None, injection=True):
+def twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit=None, fixed_commit=None, project_id=None, bug_no=None, injection=True):
     buggy_results = []
     fib_tests = []
     fixed_results = []
@@ -290,10 +303,10 @@ def twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_
 
     git_checkout(repo_path, buggy_commit, version='buggy')
     fix_build_env(repo_path)
-    compile_success, _ = compile_repo(repo_path)
+    compile_success, reason = compile_repo(repo_path)
     if not compile_success:
         raise Exception(
-            "Source Code Compilation failed: {}".format(repo_path))
+            "Source Code Compilation failed: {}\n{}".format(repo_path, reason))
 
     for example_test in pit(example_tests, color='red'):
         git_reset(repo_path)
@@ -301,10 +314,10 @@ def twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_
         example_test = enforce_static_assertions(example_test)
         try:
             buggy_info = individual_run(
-                repo_path, src_dir, test_prefix, example_test, project_id, injection)
+                repo_path, src_dir, test_prefix, example_test, project_id, bug_no, injection)
         except Exception as e:
             buggy_info = f'[error] {repr(e)}'
-        
+
         if isinstance(buggy_info, dict):
             if buggy_info['autogen_failed']:
                 fib_tests.append(example_test)
@@ -327,12 +340,12 @@ def twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_
             continue
 
         git_reset(repo_path)
-        git_clean(repo_path)  
+        git_clean(repo_path)
         overwrite_test_code(repo_path, buggy_commit)
         example_test = enforce_static_assertions(example_test)
         try:
             fixed_info = individual_run(
-            repo_path, src_dir, test_prefix, example_test, project_id, injection)
+            repo_path, src_dir, test_prefix, example_test, project_id, bug_no, injection)
         except Exception as e:
             fixed_info = f'[error] {repr(e)}'
 
@@ -358,7 +371,7 @@ def twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_
 
                 fixed_info = get_test_execution_result(
                     repo_path, test_name, file_content)
-        
+
 
         fixed_results.append(fixed_info)
 
@@ -403,17 +416,19 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--test_no', type=int, default=None)
     parser.add_argument('--gen_test_dir', default='/root/data/GHRB/gen_tests/')
     parser.add_argument('--all', action='store_true')
-    parser.add_argument('--exp_name', default='example2_n50_ghrb')
+    parser.add_argument('--exp_name', default='libro_default')
     args = parser.parse_args()
 
     with open(BUG_LIST_PATH) as f:
         data = json.load(f)
 
-    GEN_TEST_DIR = args.gen_test_dir
+    GEN_TEST_DIR = args.gen_test_dir + args.exp_name
+
+    os.makedirs(f'/root/results/{args.exp_name}', exist_ok=True)
 
     if args.all:
-        assert args.project is not None # target project should be set 
-        
+        assert args.project is not None # target project should be set
+
         bug2tests = defaultdict(list)
 
         for gen_test_file in glob.glob(os.path.join(GEN_TEST_DIR, '*.txt')):
@@ -446,13 +461,13 @@ if __name__ == '__main__':
             buggy_commit = target_bug['buggy_commits'][0]['oid']
             fixed_commit = target_bug['merge_commit']
 
-            results = twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit, fixed_commit, project_id)
+            results = twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit, fixed_commit, project_id, bug_no)
 
             for test_path, res in zip(tests, results):
                 res_for_bug[os.path.basename(test_path)] = res
             exec_results[bug_key] = res_for_bug
 
-            with open(f'{LIBRO_PATH}/results/{args.exp_name}_{args.project}.json', 'w') as f:
+            with open(f'{LIBRO_PATH}/results/{args.exp_name}/{args.project}.json', 'w') as f:
                 json.dump(exec_results, f, indent=4)
 
     elif args.test_no is None:
@@ -475,12 +490,12 @@ if __name__ == '__main__':
         buggy_commit = target_bug['buggy_commits'][0]['oid']
         fixed_commit = target_bug['merge_commit']
 
-        results = twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit, fixed_commit, project_id)
-        
+        results = twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit, fixed_commit, project_id, bug_no)
+
         for test_path, res in zip(test_files, results):
             res_for_bug[os.path.basename(test_path)] = res
 
-        with open(f'{LIBRO_PATH}/results/{args.exp_name}_{args.project}_{args.bug_id}.json', 'w') as f:
+        with open(f'{LIBRO_PATH}/results/{args.exp_name}/{args.project}_{args.bug_id}.json', 'w') as f:
             json.dump(res_for_bug, f, indent=4)
 
     else:
@@ -499,4 +514,4 @@ if __name__ == '__main__':
         fixed_commit = target_bug['merge_commit']
 
         # example experiment execution
-        print(twover_run_experiment(repo_path, src_dir, test_prefix, [example_test], buggy_commit, fixed_commit, project_id))
+        print(twover_run_experiment(repo_path, src_dir, test_prefix, [example_test], buggy_commit, fixed_commit, project_id, bug_no))

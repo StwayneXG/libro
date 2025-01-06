@@ -201,13 +201,13 @@ def inject_with_imports(best_classpath, testf_lines, gen_test, unhandled_imports
         'void ' + org_test_name,
         'void ' + new_test_name)
     # add @Test decorator if necessary
-#    if '@Test' in ''.join(testf_lines):
-#        gen_test = '@Test\n' + gen_test.strip()
-    if '@Test' not in ''.join(testf_lines):
-        # Remove the lines that start with @Test
-        gen_test_lines = gen_test.split('\n')
-        testf_lines = [line for line in gen_test_lines if not line.startswith('@Test')]
-        gen_test = '\n'.join(testf_lines)
+    if '@Test' in ''.join(testf_lines):
+        gen_test = '@Test\n' + gen_test.strip()
+    # if '@Test' not in ''.join(testf_lines):
+    #     # Remove the lines that start with @Test
+    #     gen_test_lines = gen_test.split('\n')
+    #     testf_lines = [line for line in gen_test_lines if not line.startswith('@Test')]
+    #     gen_test = '\n'.join(testf_lines)
 
     # find last line of titular class
     tree = javalang.parse.parse(''.join(new_test_lines))
