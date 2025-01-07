@@ -8,7 +8,7 @@ process_bug() {
     local bug=$2
 
     # Run the processing command
-    python3.9 postprocess_ghrb.py -p $proj -b $bug --exp_name "sc_baseline(libro)"
+    python3.9 postprocess_ghrb.py -p $proj -b $bug --exp_name "hashmask"
 }
 
 # Function to manage processing for a project
