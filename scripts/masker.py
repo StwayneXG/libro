@@ -8,7 +8,10 @@ def mask_method(project_path, old_method_name, new_method_name):
                 with open(os.path.join(root, file), 'r', errors='ignore') as f:
                     code = f.read()
                     codelines = code.split('\n')
-                tree = javalang.parse.parse(code)
+                try:
+                    tree = javalang.parse.parse(code)
+                except:
+                    continue
 
                 filters = [javalang.tree.MethodDeclaration, javalang.tree.MethodInvocation, javalang.tree.ClassDeclaration, javalang.tree.ConstructorDeclaration]
                 for filter in filters:
