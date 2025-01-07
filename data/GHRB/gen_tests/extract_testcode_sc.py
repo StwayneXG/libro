@@ -5,8 +5,7 @@ def main():
     experiment = "meaningfulmask_0-rephrased"
     df = pd.read_csv(f"{experiment}_generatedtestcases.csv")
     df['Generated Testcases'] = df['Generated Testcases'].apply(eval)
-    os.makedirs("data/testcases_txt", exist_ok=True)
-    os.makedirs(f"data/testcases_txt/{experiment}", exist_ok=True)
+    os.makedirs(experiment, exist_ok=True)
 
     for i, row in df.iterrows():
         project = row['Project']
