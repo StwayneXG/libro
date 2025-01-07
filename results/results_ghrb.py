@@ -6,8 +6,8 @@ from itertools import zip_longest
 
 def get_project_bug(filename):
     # Remove the extension
-    filename = filename.split(".")[0]
-    parts = filename.split("_")
+    filename = filename.rsplit(".", 1)[0]
+    parts = filename.rsplit("_", 1)
 
     if len(parts) >= 2:
         return parts[0], int(parts[1])
@@ -34,7 +34,7 @@ def process_json_files(directory_path):
                         successful_projects.add(f"{project}-{bug_number}")
                 except:
                     pass
-            
+
             success_details[f"{project}-{bug_number}"] = success_tests
 
     return successful_projects, success_details
@@ -43,11 +43,11 @@ def analyze_project_success(success_projects):
     project_success_details = dict()
     for project in success_projects:
         project_name = project.rsplit('-', 1)[0]
-        if project not in project_success_details:
-            project_success_details[project] = [project_name]
+        if project_name not in project_success_details:
+            project_success_details[project_name] = [project]
         else:
-            project_success_details[project].append(project_name)
-    
+            project_success_details[project_name].append(project)
+    print(project_success_details)
     # Change the values to length of the list
     project_success_details = {k: len(v) for k, v in project_success_details.items()}
     return project_success_details

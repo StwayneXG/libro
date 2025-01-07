@@ -51,14 +51,20 @@ def inject_test(repo_path, src_dir, test_dir, gen_test, needed_elements, dry=Fal
     return test_name
 
 def is_injectable_test_class(file_content, filepath, titular_class_name):
-    tree = javalang.parse.parse(file_content)
+    try:
+        tree = javalang.parse.parse(file_content)
+    except javalang.parser.JavaSyntaxError as e:
+        print(f'Error parsing {filepath}: {e}')
+        return False
     titular_class_def = None
     for path, node in tree.filter(javalang.tree.ClassDeclaration):
         if node.name == titular_class_name:
             titular_class_def = node
             break
 
-    assert titular_class_def is not None, f'Could not find titular class {titular_class_name} in {filepath}'
+    if titular_class_def is None:
+        return False
+    # assert titular_class_def is not None, f'Could not find titular class {titular_class_name} in {filepath}'
     if 'abstract' in titular_class_def.modifiers:
         return False
 

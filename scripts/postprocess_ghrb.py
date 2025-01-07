@@ -269,7 +269,6 @@ def get_test_execution_result(repo_path, test_name, file_content):
 
 
 def individual_run(repo_path, src_dir, test_prefix, example_test, project_id, bug_no, injection):
-
     if MASK_INFO_DIR is not None:
         mask_info = pd.read_csv(path.join(MASK_INFO_DIR, f'{project_id}-{bug_no}.csv'))
         for i, row in mask_info.iterrows():
@@ -474,15 +473,16 @@ if __name__ == '__main__':
     elif args.test_no is None:
         test_files = glob.glob(os.path.join(GEN_TEST_DIR, f'{args.project}_{args.bug_id}_*.txt'))
         example_tests = []
-        # res_for_bug = {}
+        res_for_bug = {}
 
         for gen_test_file in test_files:
             with open(gen_test_file) as f:
                 example_tests.append(f.read())
 
-        if os.path.exists(f'/root/results/gbrb/{args.exp_name}/{args.project}_{args.bug_id}.json'):
-            with open(f'/root/results/{args.exp_name}/{args.project}_{args.bug_id}.json') as f:
+        if os.path.exists(f'/root/results/ghrb/{args.exp_name}/{args.project}_{args.bug_id}.json'):
+            with open(f'/root/results/ghrb/{args.exp_name}/{args.project}_{args.bug_id}.json') as f:
                 res_for_bug = json.load(f)
+                print(f"Already processed {len(res_for_bug)} tests for {args.project}-{args.bug_id}")
 
         test_files = [x for x in test_files if os.path.basename(x) not in res_for_bug.keys()]
 
@@ -497,13 +497,15 @@ if __name__ == '__main__':
         buggy_commit = target_bug['buggy_commits'][0]['oid']
         fixed_commit = target_bug['merge_commit']
 
-        results = twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit, fixed_commit, project_id, bug_no)
+        if len(test_files) > 0:
+            print(f"Running {len(test_files)} tests for {args.project}-{args.bug_id}")
+            results = twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit, fixed_commit, project_id, bug_no)
 
-        for test_path, res in zip(test_files, results):
-            res_for_bug[os.path.basename(test_path)] = res
+            for test_path, res in zip(test_files, results):
+                res_for_bug[os.path.basename(test_path)] = res
 
-        with open(f'{LIBRO_PATH}/results/ghrb/{args.exp_name}/{args.project}_{args.bug_id}.json', 'w') as f:
-            json.dump(res_for_bug, f, indent=4)
+            with open(f'{LIBRO_PATH}/results/ghrb/{args.exp_name}/{args.project}_{args.bug_id}.json', 'w') as f:
+                json.dump(res_for_bug, f, indent=4)
 
     else:
         with open(os.path.join(GEN_TEST_DIR, f'{args.project}_{args.bug_id}_markdown_n{args.test_no}.txt')) as f:

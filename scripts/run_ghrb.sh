@@ -7,9 +7,6 @@ process_bug() {
     local proj=$1
     local bug=$2
 
-    # Log the start of processing for a bug
-    echo "Starting processing for bug $bug in project $proj"
-
     # Run the processing command
     python3.9 postprocess_ghrb.py -p $proj -b $bug --exp_name "libro_default"
 }
