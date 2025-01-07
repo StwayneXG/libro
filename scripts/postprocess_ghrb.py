@@ -269,9 +269,9 @@ def get_test_execution_result(repo_path, test_name, file_content):
     }
 
 
-def individual_run(repo_path, src_dir, test_prefix, example_test, project_id, bug_no, injection):
+def individual_run(repo_path, src_dir, test_prefix, example_test, project_id, project_name, bug_no, injection):
     if MASK_INFO_DIR is not None:
-        mask_info = pd.read_csv(path.join(MASK_INFO_DIR, f'{project_id}-{bug_no}.csv'))
+        mask_info = pd.read_csv(path.join(MASK_INFO_DIR, f'{project_name}-{bug_no}.csv'))
         for i, row in mask_info.iterrows():
             mask_method(repo_path, row['Old Method Name'], row['New Method Name'])
 
@@ -292,7 +292,7 @@ def individual_run(repo_path, src_dir, test_prefix, example_test, project_id, bu
     return get_test_execution_result(repo_path, test_name, file_content)
 
 
-def twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit=None, fixed_commit=None, project_id=None, bug_no=None, injection=True):
+def twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit=None, fixed_commit=None, project_id=None, project_name=None, bug_no=None, injection=True):
     buggy_results = []
     fib_tests = []
     fixed_results = []
@@ -314,7 +314,7 @@ def twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_
         example_test = enforce_static_assertions(example_test)
         try:
             buggy_info = individual_run(
-                repo_path, src_dir, test_prefix, example_test, project_id, bug_no, injection)
+                repo_path, src_dir, test_prefix, example_test, project_id, project_name, bug_no, injection)
         except Exception as e:
             buggy_info = f'[error] {repr(e)}'
 
@@ -345,7 +345,7 @@ def twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_
         example_test = enforce_static_assertions(example_test)
         try:
             fixed_info = individual_run(
-            repo_path, src_dir, test_prefix, example_test, project_id, bug_no, injection)
+            repo_path, src_dir, test_prefix, example_test, project_id, project_name, bug_no, injection)
         except Exception as e:
             fixed_info = f'[error] {repr(e)}'
 
@@ -462,7 +462,7 @@ if __name__ == '__main__':
             buggy_commit = target_bug['buggy_commits'][0]['oid']
             fixed_commit = target_bug['merge_commit']
 
-            results = twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit, fixed_commit, project_id, bug_no)
+            results = twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit, fixed_commit, project_id, project_name, bug_no)
 
             for test_path, res in zip(tests, results):
                 res_for_bug[os.path.basename(test_path)] = res
@@ -500,7 +500,7 @@ if __name__ == '__main__':
 
         if len(test_files) > 0:
             print(f"Running {len(test_files)} tests for {args.project}-{args.bug_id}")
-            results = twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit, fixed_commit, project_id, bug_no)
+            results = twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_commit, fixed_commit, project_id, project_name, bug_no)
 
             for test_path, res in zip(test_files, results):
                 res_for_bug[os.path.basename(test_path)] = res
@@ -524,4 +524,4 @@ if __name__ == '__main__':
         fixed_commit = target_bug['merge_commit']
 
         # example experiment execution
-        print(twover_run_experiment(repo_path, src_dir, test_prefix, [example_test], buggy_commit, fixed_commit, project_id, bug_no))
+        print(twover_run_experiment(repo_path, src_dir, test_prefix, [example_test], buggy_commit, fixed_commit, project_id, project_name, bug_no))
