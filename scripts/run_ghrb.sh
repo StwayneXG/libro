@@ -8,7 +8,7 @@ process_bug() {
     local bug=$2
 
     # Run the processing command
-    python3.9 postprocess_ghrb.py -p $proj -b $bug --exp_name "libro_default"
+    python3.9 postprocess_ghrb.py -p $proj -b $bug --exp_name "sc_baseline(libro)"
 }
 
 # Function to manage processing for a project
