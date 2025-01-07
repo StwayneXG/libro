@@ -1,0 +1,4 @@
+Old Method Name,New Method Name
+checkEnumDef,func_handleEnumDefinition
+visitToken,func_processASTNode
+checkEnumConstructorModifiers,func_validateEnumConstructorModifiers

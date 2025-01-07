@@ -1,0 +1,58 @@
+Method Name,Method Implementation
+getAccessModifierFromModifiersToken,"     public static AccessModifierOption getAccessModifierFromModifiersToken(DetailAST ast) {
+        final AccessModifierOption accessModifier;
+ 
+        if (ScopeUtil.isInInterfaceOrAnnotationBlock(ast)) {
+            accessModifier = AccessModifierOption.PUBLIC;
+        }
+        else {
+            final DetailAST modsToken = ast.findFirstToken(TokenTypes.MODIFIERS);
+            accessModifier = getAccessModifierFromModifiersTokenDirectly(modsToken);
+         }
+ 
+         return accessModifier;
+     }"
+getAccessModifierFromModifiersTokenDirectly,"     private static AccessModifierOption getAccessModifierFromModifiersTokenDirectly(
+             DetailAST modifiersToken) {
+         if (modifiersToken == null) {
+             throw new IllegalArgumentException(""expected non-null AST-token with type 'MODIFIERS'"");
+         }
+ 
+        // default access modifier
+         AccessModifierOption accessModifier = AccessModifierOption.PACKAGE;
+         for (DetailAST token = modifiersToken.getFirstChild(); token != null;
+              token = token.getNextSibling()) {
+             final int tokenType = token.getType();
+             if (tokenType == TokenTypes.LITERAL_PUBLIC) {
+                 accessModifier = AccessModifierOption.PUBLIC;
+             }
+             else if (tokenType == TokenTypes.LITERAL_PROTECTED) {
+                 accessModifier = AccessModifierOption.PROTECTED;
+             }
+             else if (tokenType == TokenTypes.LITERAL_PRIVATE) {
+                 accessModifier = AccessModifierOption.PRIVATE;
+             }
+         }
+         return accessModifier;
+     }"
+getSurroundingAccessModifier,"     public static AccessModifierOption getSurroundingAccessModifier(DetailAST node) {
+         AccessModifierOption returnValue = null;
+         for (DetailAST token = node.getParent();
+              returnValue == null && !TokenUtil.isRootNode(token);
+              token = token.getParent()) {
+             final int type = token.getType();
+             if (type == TokenTypes.CLASS_DEF
+                 || type == TokenTypes.INTERFACE_DEF
+                 || type == TokenTypes.ANNOTATION_DEF
+                 || type == TokenTypes.ENUM_DEF) {
+                final DetailAST mods =
+                    token.findFirstToken(TokenTypes.MODIFIERS);
+                returnValue = getAccessModifierFromModifiersTokenDirectly(mods);
+             }
+             else if (type == TokenTypes.LITERAL_NEW) {
+                 break;
+             }
+         }
+ 
+         return returnValue;
+     }"

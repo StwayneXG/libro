@@ -1,0 +1,12 @@
+Method Name,Method Implementation
+copyAttributes,"         private void copyAttributes(org.jsoup.nodes.Node source, Element el) {
+             for (Attribute attribute : source.attributes()) {
+                String key = Attribute.getValidKey(attribute.getKey(), xml);
+                 if (key != null) { // null if couldn't be coerced to validity
+                     el.setAttribute(key, attribute.getValue());
+                 }
+             }
+         }"
+convert,"     public static Document convert(org.jsoup.nodes.Document in) {
+         return (new W3CDom().fromJsoup(in));
+     }"

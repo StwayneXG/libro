@@ -1,0 +1,3 @@
+Old Method Name,New Method Name
+hasNext,func_checkForNextElement
+hasNext,func_checkIfNextTokenAvailable

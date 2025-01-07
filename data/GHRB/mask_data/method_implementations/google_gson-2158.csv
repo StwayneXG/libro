@@ -1,0 +1,14 @@
+Method Name,Method Implementation
+write,"       @Override public void write(JsonWriter out, Number value) throws IOException {
+         if (value == null) {
+           out.nullValue();
+           return;
+         }
+         double doubleValue = value.doubleValue();
+         checkValidFloatingPoint(doubleValue);
+        out.value(value);
+       }"
+write,"     public void write(JsonWriter out, Class value) throws IOException {
+       throw new UnsupportedOperationException(""Attempted to serialize java.lang.Class: ""
+               + value.getName() + "". Forgot to register a type adapter?"");
+     }"

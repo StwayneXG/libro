@@ -1,0 +1,16 @@
+Method Name,Method Implementation
+visitJavadocToken,"     public void visitJavadocToken(DetailNode ast) {
+         final Optional<DetailNode> inlineTag = getInlineTagNode(ast);
+        if (inlineTag.isPresent() && isSummaryTag(inlineTag.get())) {
+            validateSummaryTag(inlineTag.get());
+         }
+        else if (inlineTag.isPresent() && isInlineReturnTag(inlineTag.get())) {
+            validateInlineReturnTag(inlineTag.get());
+         }
+         else if (!startsWithInheritDoc(ast)) {
+             validateUntaggedSummary(ast);
+         }
+     }"
+foo7,          void foo7() {}
+foo12,"     void foo12() {
+     }"

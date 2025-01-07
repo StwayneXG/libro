@@ -1,0 +1,29 @@
+Method Name,Method Implementation
+getRightNode,"     private static DetailAST getRightNode(DetailAST node) {
+         DetailAST result;
+         if (node.getLastChild() == null) {
+             result = node.getNextSibling();
+         }
+         else {
+             final DetailAST rightNode;
+             if (node.getType() == TokenTypes.QUESTION) {
+                 rightNode = node.findFirstToken(TokenTypes.COLON).getPreviousSibling();
+             }
+             else {
+                 rightNode = node.getLastChild();
+             }
+             result = adjustParens(rightNode, DetailAST::getPreviousSibling);
+         }
+ 
+        // The ARRAY_INIT AST is confusing. It should be
+        // ARRAY_INIT
+        // |--LCURLY (first child)
+        // `--RCURLY (last child)
+        // but there is no LCURLY for ARRAY_INIT
+        if (result.getType() != TokenTypes.ARRAY_INIT) {
+             while (result.getFirstChild() != null) {
+                 result = result.getFirstChild();
+             }
+         }
+         return result;
+     }"

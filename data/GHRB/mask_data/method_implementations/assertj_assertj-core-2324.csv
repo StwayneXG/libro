@@ -1,0 +1,24 @@
+Method Name,Method Implementation
+fieldsToName,"   private static Set<String> fieldsToName(Set<Field> fields) {
+     return fields.stream().map(Field::getName).collect(toCollection(LinkedHashSet::new));
+   }"
+assertHasMethods,"   public void assertHasMethods(AssertionInfo info, Class<?> actual, String... methods) {
+     assertNotNull(info, actual);
+     doAssertHasMethods(info, actual, filterSyntheticMembers(getAllMethods(actual)), false, methods);
+   }"
+doAssertHasMethods,"   private void doAssertHasMethods(AssertionInfo info, Class<?> actual, Set<Method> actualMethods, boolean declared,
+                                   String... expectedMethods) {
+     SortedSet<String> expectedMethodNames = newTreeSet(expectedMethods);
+     SortedSet<String> missingMethodNames = newTreeSet();
+     SortedSet<String> actualMethodNames = methodsToName(actualMethods);
+ 
+     if (expectedMethods.length == 0) {
+       if (actualMethods.isEmpty()) return;
+       throw failures.failure(info, shouldNotHaveMethods(actual, declared, getMethodsWithModifier(actualMethods,
+                                                                                                  Modifier.methodModifiers())));
+     }
+ 
+     if (!noMissingElement(actualMethodNames, expectedMethodNames, missingMethodNames)) {
+       throw failures.failure(info, shouldHaveMethods(actual, declared, expectedMethodNames, missingMethodNames));
+     }
+   }"

@@ -1,0 +1,4 @@
+Old Method Name,New Method Name
+fieldsToName,func_extractFieldNames
+assertHasMethods,func_validate_class_has_methods
+doAssertHasMethods,func_checkExpectedMethods

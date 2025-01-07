@@ -1,0 +1,84 @@
+Method Name,Method Implementation
+isDeclaredAsAbstract,"         private boolean isDeclaredAsAbstract() {
+             return declaredAsAbstract;
+         }"
+visitClass,"     private void visitClass(DetailAST ast) {
+        final String qualifiedClassName = getQualifiedClassName(ast);
+        final ClassDesc currClass = new ClassDesc(qualifiedClassName, classes.size(), ast);
+        classes.push(currClass);
+         innerClasses.put(qualifiedClassName, currClass);
+     }"
+visitCtor,"     private void visitCtor(DetailAST ast) {
+         if (!ScopeUtil.isInEnumBlock(ast) && !ScopeUtil.isInRecordBlock(ast)) {
+             final DetailAST modifiers = ast.findFirstToken(TokenTypes.MODIFIERS);
+            final ClassDesc desc = classes.getFirst();
+             if (modifiers.findFirstToken(TokenTypes.LITERAL_PRIVATE) == null) {
+                 desc.registerNonPrivateCtor();
+             }
+             else {
+                 desc.registerPrivateCtor();
+             }
+         }
+     }"
+registerAnonymousInnerClass,"        private void registerAnonymousInnerClass() {
+            withAnonymousInnerClass = true;
+        }"
+getClassDeclarationNameMatchingCountDiff,"    private static int getClassDeclarationNameMatchingCountDiff(String superClassName,
+                                                                ClassDesc firstClass,
+                                                                ClassDesc secondClass) {
+        int diff = Integer.compare(
+            CheckUtil
+                .typeDeclarationNameMatchingCount(superClassName, secondClass.getQualifiedName()),
+            CheckUtil
+                .typeDeclarationNameMatchingCount(superClassName, firstClass.getQualifiedName()));
+        if (diff == 0) {
+            diff = Integer.compare(firstClass.getDepth(), secondClass.getDepth());
+        }
+        return diff;
+     }"
+beginTree,"     public void beginTree(DetailAST rootAST) {
+        classes = new ArrayDeque<>();
+        innerClasses = new HashMap<>();
+         packageName = """";
+     }"
+leaveToken,"     public void leaveToken(DetailAST ast) {
+        if (ast.getType() == TokenTypes.CLASS_DEF) {
+            classes.pop();
+         }
+         if (TokenUtil.isRootNode(ast.getParent())) {
+             // First pass: mark all classes that have derived inner classes
+             innerClasses.forEach(this::registerNestedSubclassToOuterSuperClasses);
+             // Second pass: report violation for all classes that should be declared as final
+             innerClasses.forEach((qualifiedClassName, classDesc) -> {
+                 if (shouldBeDeclaredAsFinal(classDesc)) {
+                     final String className = CommonUtil.baseClassName(qualifiedClassName);
+                    log(classDesc.getClassAst(), MSG_KEY, className);
+                 }
+             });
+         }
+     }"
+getClassAst,"        public DetailAST getClassAst() {
+            return classAst;
+        }"
+getQualifiedName,"        private String getQualifiedName() {
+            return qualifiedName;
+        }"
+isWithAnonymousInnerClass,"        private boolean isWithAnonymousInnerClass() {
+            return withAnonymousInnerClass;
+         }"
+getDepth,"        private int getDepth() {
+            return depth;
+         }"
+doesNameOfClassMatchAnonymousInnerClassName,"    private static boolean doesNameOfClassMatchAnonymousInnerClassName(DetailAST ast,
+                                                               ClassDesc classDesc) {
+        final String[] className = classDesc.getQualifiedName().split(""\\."");
+        return ast.getFirstChild().getText().equals(className[className.length - 1]);
+     }"
+shouldBeDeclaredAsFinal,"     private static boolean shouldBeDeclaredAsFinal(ClassDesc desc) {
+         return desc.isWithPrivateCtor()
+                 && !(desc.isDeclaredAsAbstract()
+                    || desc.isWithAnonymousInnerClass())
+                 && !desc.isDeclaredAsFinal()
+                 && !desc.isWithNonPrivateCtor()
+                 && !desc.isWithNestedSubclass();
+     }"

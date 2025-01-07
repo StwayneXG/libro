@@ -1,0 +1,10 @@
+Method Name,Method Implementation
+generateAlias,"     public static String generateAlias(Certificate certificate) {
+         if (certificate instanceof X509Certificate) {
+             return ((X509Certificate) certificate)
+                     .getSubjectX500Principal()
+                    .getName();
+         } else {
+            return UUID.randomUUID().toString();
+         }
+     }"

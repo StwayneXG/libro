@@ -1,0 +1,49 @@
+Method Name,Method Implementation
+checkTrusted,"     default void checkTrusted(TrustManagerConsumer callBackConsumer) throws CertificateException {
+         List<CertificateException> certificateExceptions = new ArrayList<>();
+         for (X509ExtendedTrustManager trustManager : getTrustManagers()) {
+            if (trustManager.getAcceptedIssuers().length > 0) {
+                try {
+                    callBackConsumer.checkTrusted(trustManager);
+                    return;
+                } catch (CertificateException e) {
+                    certificateExceptions.add(e);
+                }
+             }
+         }
+ 
+         CertificateException certificateException = new CertificateException(CERTIFICATE_EXCEPTION_MESSAGE);
+         certificateExceptions.forEach(certificateException::addSuppressed);
+ 
+         throw certificateException;
+     }"
+build,"         public X509ExtendedTrustManager build() {
+             requireNotEmpty(trustManagers, () -> new GenericTrustManagerException(EMPTY_TRUST_MANAGER_EXCEPTION));
+ 
+            X509ExtendedTrustManager trustManager;
+            if (trustManagers.size() == 1) {
+                trustManager = trustManagers.get(0);
+            } else {
+                trustManager = trustManagers.stream()
+                        .map(TrustManagerUtils::unwrapIfPossible)
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.collectingAndThen(Collectors.toList(), CompositeX509ExtendedTrustManager::new));
+            }
+ 
+            if (chainAndAuthTypeValidator != null
+                    || chainAndAuthTypeWithSocketValidator != null
+                    || chainAndAuthTypeWithSSLEngineValidator != null) {
+                trustManager = TrustManagerUtils.createEnhanceableTrustManager(
+                        trustManager,
+                        chainAndAuthTypeValidator,
+                        chainAndAuthTypeWithSocketValidator,
+                        chainAndAuthTypeWithSSLEngineValidator
+                );
+             }
+ 
+             if (swappableTrustManagerEnabled) {
+                trustManager = TrustManagerUtils.createSwappableTrustManager(trustManager);
+             }
+ 
+            return trustManager;
+         }"

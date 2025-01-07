@@ -1,0 +1,8 @@
+Old Method Name,New Method Name
+isOnConstructor,func_checkConstructorContext
+method,func_identify_and_fix_violations_in_method
+method23,func_emptyMethod
+method22,func_invalidParameter
+method25,func_initialize_variable
+method20,func_validate_method20
+method24,func_handleViolation

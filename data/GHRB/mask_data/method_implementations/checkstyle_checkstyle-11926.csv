@@ -1,0 +1,16 @@
+Method Name,Method Implementation
+isOnConstructor,"     public static boolean isOnConstructor(DetailAST blockComment) {
+         return isOnPlainToken(blockComment, TokenTypes.CTOR_DEF, TokenTypes.IDENT)
+                 || isOnTokenWithModifiers(blockComment, TokenTypes.CTOR_DEF)
+                || isOnTokenWithAnnotation(blockComment, TokenTypes.CTOR_DEF);
+     }"
+method,"     void method() {
+        /** violation */ int variable1; // violation
+        /** violation */ final int variable2; // violation
+        /** violation */ @Deprecated int variable3; // violation
+     }"
+method23,    void method23() /** violation */ {}
+method22,    void method22(/** violation */) {}
+method25,    void method25() { /** violation */ int variable; }
+method20,    void /** violation */ method20() {}
+method24,    void method24() { /** violation */ }

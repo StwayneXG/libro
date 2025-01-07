@@ -1,0 +1,7 @@
+Method Name,Method Implementation
+visitType,"     private void visitType(DetailAST ast) {
+         classesContexts.peek().visitType(ast);
+     }"
+createFullType,"    public static FullIdent createFullType(final DetailAST typeAST) {
+        return FullIdent.createFullIdent(typeAST.getFirstChild());
+    }"

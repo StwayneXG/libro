@@ -1,0 +1,42 @@
+Method Name,Method Implementation
+getAdapter,"   public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {
+    TypeAdapter<?> cached = typeTokenCache.get(type == null ? NULL_KEY_SURROGATE : type);
+     if (cached != null) {
+       return (TypeAdapter<T>) cached;
+     }
+ 
+     Map<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();
+     boolean requiresThreadLocalCleanup = false;
+     if (threadCalls == null) {
+       threadCalls = new HashMap<>();
+       calls.set(threadCalls);
+       requiresThreadLocalCleanup = true;
+     }
+ 
+     // the key and value type parameters always agree
+     FutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);
+     if (ongoingCall != null) {
+       return ongoingCall;
+     }
+ 
+     try {
+       FutureTypeAdapter<T> call = new FutureTypeAdapter<>();
+       threadCalls.put(type, call);
+ 
+       for (TypeAdapterFactory factory : factories) {
+         TypeAdapter<T> candidate = factory.create(this, type);
+         if (candidate != null) {
+           call.setDelegate(candidate);
+          typeTokenCache.put(type, candidate);
+           return candidate;
+         }
+       }
+       throw new IllegalArgumentException(""GSON ("" + GsonBuildConfig.VERSION + "") cannot handle "" + type);
+     } finally {
+       threadCalls.remove(type);
+ 
+       if (requiresThreadLocalCleanup) {
+         calls.remove();
+       }
+     }
+   }"

@@ -1,0 +1,23 @@
+Method Name,Method Implementation
+getFirstAstNode,"     protected static DetailAST getFirstAstNode(DetailAST ast) {
+        return getFirstAst(ast, ast);
+    }"
+getFirstAst,"    private static DetailAST getFirstAst(DetailAST ast, DetailAST tree) {
+         DetailAST realStart = ast;
+
+        if (tree.getLineNo() < realStart.getLineNo()
+            || tree.getLineNo() == realStart.getLineNo()
+            && tree.getColumnNo() < realStart.getColumnNo()
+        ) {
+            realStart = tree;
+        }
+
+        // check children
+        for (DetailAST node = tree.getFirstChild();
+            node != null;
+            node = node.getNextSibling()) {
+            realStart = getFirstAst(realStart, node);
+         }
+
+         return realStart;
+     }"

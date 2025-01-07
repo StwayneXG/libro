@@ -1,0 +1,3 @@
+Old Method Name,New Method Name
+visitType,func_handleVisitType
+createFullType,func_createFullType

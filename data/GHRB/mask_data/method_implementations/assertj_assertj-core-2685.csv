@@ -1,0 +1,43 @@
+Method Name,Method Implementation
+assertStartsWithIgnoringCase,"   public void assertStartsWithIgnoringCase(AssertionInfo info, CharSequence actual, CharSequence prefix) {
+     failIfPrefixIsNull(prefix);
+     assertNotNull(info, actual);
+    if (!comparisonStrategy.stringStartsWith(actual.toString().toLowerCase(), prefix.toString().toLowerCase()))
+       throw failures.failure(info, shouldStartWithIgnoringCase(actual, prefix, comparisonStrategy));
+   }"
+assertContainsIgnoringCase,"   public void assertContainsIgnoringCase(AssertionInfo info, CharSequence actual, CharSequence sequence) {
+     checkCharSequenceIsNotNull(sequence);
+     assertNotNull(info, actual);
+    if (!actual.toString().toLowerCase().contains(sequence.toString().toLowerCase()))
+      throw failures.failure(info, shouldContainIgnoringCase(actual, sequence));
+   }"
+assertDoesNotEndWithIgnoringCase,"   public void assertDoesNotEndWithIgnoringCase(AssertionInfo info, CharSequence actual, CharSequence suffix) {
+     failIfSuffixIsNull(suffix);
+     assertNotNull(info, actual);
+    if (comparisonStrategy.stringEndsWith(actual.toString().toLowerCase(), suffix.toString().toLowerCase()))
+       throw failures.failure(info, shouldNotEndWithIgnoringCase(actual, suffix, comparisonStrategy));
+   }"
+assertDoesNotContainIgnoringCase,"   public void assertDoesNotContainIgnoringCase(AssertionInfo info, CharSequence actual, CharSequence... values) {
+     doCommonCheckForCharSequence(info, actual, values);
+ 
+    String actualLowerCase = actual.toString().toLowerCase();
+    Set<CharSequence> foundValues = stream(values).filter(value -> actualLowerCase.contains(value.toString().toLowerCase()))
+                                                   .collect(toCollection(LinkedHashSet::new));
+     if (foundValues.isEmpty()) return;
+     if (foundValues.size() == 1 && values.length == 1) {
+       throw failures.failure(info, shouldNotContainIgnoringCase(actual, values[0]));
+     }
+     throw failures.failure(info, shouldNotContainIgnoringCase(actual, values, foundValues));
+   }"
+assertDoesNotStartWithIgnoringCase,"   public void assertDoesNotStartWithIgnoringCase(AssertionInfo info, CharSequence actual, CharSequence prefix) {
+     failIfPrefixIsNull(prefix);
+     assertNotNull(info, actual);
+    if (comparisonStrategy.stringStartsWith(actual.toString().toLowerCase(), prefix.toString().toLowerCase()))
+       throw failures.failure(info, shouldNotStartWithIgnoringCase(actual, prefix, comparisonStrategy));
+   }"
+assertEndsWithIgnoringCase,"   public void assertEndsWithIgnoringCase(AssertionInfo info, CharSequence actual, CharSequence suffix) {
+     failIfSuffixIsNull(suffix);
+     assertNotNull(info, actual);
+    if (!comparisonStrategy.stringEndsWith(actual.toString().toLowerCase(), suffix.toString().toLowerCase()))
+       throw failures.failure(info, shouldEndWithIgnoringCase(actual, suffix, comparisonStrategy));
+   }"

@@ -1,0 +1,12 @@
+Method Name,Method Implementation
+hasNext,"   @Override public boolean hasNext() throws IOException {
+     JsonToken token = peek();
+    return token != JsonToken.END_OBJECT && token != JsonToken.END_ARRAY;
+   }"
+hasNext,"   public boolean hasNext() throws IOException {
+     int p = peeked;
+     if (p == PEEKED_NONE) {
+       p = doPeek();
+     }
+    return p != PEEKED_END_OBJECT && p != PEEKED_END_ARRAY;
+   }"

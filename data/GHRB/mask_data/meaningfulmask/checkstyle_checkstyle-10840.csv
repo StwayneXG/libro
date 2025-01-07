@@ -1,0 +1,4 @@
+Old Method Name,New Method Name
+getAccessModifierFromModifiersToken,func_determineAccessModifier
+getAccessModifierFromModifiersTokenDirectly,func_determineAccessModifierFromASTModifiers
+getSurroundingAccessModifier,func_findSurroundingAccessModifier

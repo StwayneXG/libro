@@ -1,0 +1,3 @@
+Old Method Name,New Method Name
+toStringOf,func_formatObjectToString
+hasOverriddenToString,func_checkIfToStringOverridden

@@ -1,0 +1,10 @@
+Method Name,Method Implementation
+value,"   public JsonWriter value(String value) throws IOException {
+     if (value == null) {
+       return nullValue();
+     }
+     writeDeferredName();
+     beforeValue();
+     string(value);
+     return this;
+   }"

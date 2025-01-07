@@ -1,0 +1,5 @@
+Old Method Name,New Method Name
+hashCode,func_getNameHashCode
+equals,func_compareAnnotatedConstructor
+equals,func_compareObjectsEquality
+equals,func_compareAnnotatedMethod

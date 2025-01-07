@@ -1,0 +1,43 @@
+Method Name,Method Implementation
+checkEnumDef,"    private void checkEnumDef(DetailAST ast) {
+        if (isInterfaceOrAnnotationMember(ast)) {
+            processInterfaceOrAnnotation(ast);
+        }
+        else {
+            checkForRedundantModifier(ast, TokenTypes.LITERAL_STATIC);
+        }
+    }"
+visitToken,"     public void visitToken(DetailAST ast) {
+        if (ast.getType() == TokenTypes.INTERFACE_DEF) {
+            checkInterfaceModifiers(ast);
+        }
+        else if (ast.getType() == TokenTypes.ENUM_DEF) {
+            checkEnumDef(ast);
+        }
+        else {
+            if (ast.getType() == TokenTypes.CTOR_DEF) {
+                if (isEnumMember(ast)) {
+                    checkEnumConstructorModifiers(ast);
+                }
+                else {
+                    checkClassConstructorModifiers(ast);
+                }
+            }
+            else if (ast.getType() == TokenTypes.METHOD_DEF) {
+                 processMethods(ast);
+            }
+            else if (ast.getType() == TokenTypes.RESOURCE) {
+                 processResources(ast);
+            }
+ 
+            if (isInterfaceOrAnnotationMember(ast)) {
+                processInterfaceOrAnnotation(ast);
+            }
+         }
+     }"
+checkEnumConstructorModifiers,"     private void checkEnumConstructorModifiers(DetailAST ast) {
+         final DetailAST modifiers = ast.findFirstToken(TokenTypes.MODIFIERS);
+         TokenUtil.findFirstTokenByPredicate(
+             modifiers, mod -> mod.getType() != TokenTypes.ANNOTATION
+         ).ifPresent(modifier -> log(modifier, MSG_KEY, modifier.getText()));
+     }"

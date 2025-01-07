@@ -1,0 +1,4 @@
+Old Method Name,New Method Name
+visitJavadocToken,func_processJavadocToken
+foo7,func_emptyFunction
+foo12,func_do_nothing
