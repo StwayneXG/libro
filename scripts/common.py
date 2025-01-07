@@ -105,7 +105,7 @@ def get_best_test_class_for_injection(repo_path, test_dir, gen_test):
     best_files = sorted(file_scores.keys(),
                         key=lambda x: (file_scores[x], x),
                         reverse=True)
-    best_file = list(best_files)[1]
+    best_file = list(best_files)[0]
     if best_file.startswith('/'):
         best_file = best_file[1:]
     best_path = path.join(repo_path, best_file)
