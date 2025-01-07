@@ -20,7 +20,8 @@ import argparse
 import pandas as pd
 from masker import mask_method
 
-# MASK_INFO_DIR = '/root/data/Defects4J/mask_data/meaningfulmask_0'
+MASK_INFO_DIR = '/root/data/GHRB/mask_data/hashmask'
+MASK_INFO_DIR = '/root/data/GHRB/mask_data/meaningfulmask'
 MASK_INFO_DIR = None
 
 LIBRO_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
