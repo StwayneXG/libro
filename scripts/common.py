@@ -91,7 +91,12 @@ def get_best_test_class_for_injection(repo_path, test_dir, gen_test):
                         continue
                 if '@Ignore' in file_cont:
                     continue  # these files are ignored when testing
-                tokens = javalang.tokenizer.tokenize(file_cont)
+                try:
+                    tokens = javalang.tokenizer.tokenize(file_cont)
+                except:
+                    print(f'Error in tokenizing {filepath}')
+                    continue
+
                 file_tokens = set([e.value for e in tokens])
                 simsc = len(test_tokens & file_tokens)/len(test_tokens)
                 file_scores[filepath.removeprefix(repo_path)] += simsc
@@ -100,7 +105,7 @@ def get_best_test_class_for_injection(repo_path, test_dir, gen_test):
     best_files = sorted(file_scores.keys(),
                         key=lambda x: (file_scores[x], x),
                         reverse=True)
-    best_file = list(best_files)[0]
+    best_file = list(best_files)[1]
     if best_file.startswith('/'):
         best_file = best_file[1:]
     best_path = path.join(repo_path, best_file)

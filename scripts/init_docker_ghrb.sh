@@ -15,3 +15,12 @@ pip install gdown
 # pip install -U sentence-transformers nltk
 apt install nano
 apt-get install zip
+
+# Check if there is a folder inside the repos directory /root/data/GHRB/repos
+
+if [ -d "/root/data/GHRB/repos/assertj-core" ]; then
+    cd /root/
+    wget -O ghrb-repos.tar.gz https://figshare.com/ndownloader/files/37005352?private_link=de40ea0a3dea94560e84
+    tar -xzvf ghrb-repos.tar.gz -C /root/data/GHRB/
+fi
+
