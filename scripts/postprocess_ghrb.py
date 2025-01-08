@@ -382,6 +382,9 @@ def twover_run_experiment(repo_path, src_dir, test_prefix, example_tests, buggy_
         if isinstance(buggy_info, str): # Test is syntactically incorrect (JavaSyntaxError)
             final_results.append(buggy_info)
             continue
+        if isinstance(fixed_info, str): # Test is syntactically incorrect (JavaSyntaxError)
+            final_results.append(fixed_info)
+            continue
 
         if fixed_info is None:
             final_results.append({
